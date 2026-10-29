@@ -12,4 +12,18 @@ Aqui eu anoto o que decidi em cada etapa, os números que saíram e o motivo de 
 
 ## 01_preco
 
-A fazer.
+Baixei o preço mensal da soja do FMI (FRED `PSOYBUSDM`). A série vai de janeiro de 2000 a setembro de 2026, com 321 meses. Setembro de 2026 fica sem alvo, porque é o mês que quero prever.
+
+A variação mensal tem média de +0,31% e desvio padrão de 5,77%. As maiores quedas foram em agosto de 2004 e outubro de 2008, as duas perto de −25%.
+
+Antes do teste (2000 a 2014), a correlação de cada feature com o alvo foi:
+
+| Feature | Correlação |
+|---|---|
+| `dlog_preco` | 0,354 |
+| `tendencia_3m` | 0,195 |
+| `dlog_preco_lag1` | 0,108 |
+
+Isso mostra que o preço tem um pouco de "embalo": quando sobe num mês, tende a subir um pouco no seguinte. Por isso mantenho as três features.
+
+No teste (janeiro de 2015 a junho de 2026, 138 meses), o RMSE do passeio aleatório é **0,0461**, cerca de 4,6% por mês. Esse é o número que os modelos precisam bater.
