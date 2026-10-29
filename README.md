@@ -23,7 +23,7 @@ Fui dividindo o trabalho em etapas numeradas, cada uma com o seu notebook:
 | 04 | `04_extras` | Testo fontes novas que podem virar features | feita |
 | 05 | `05_tabela` | Junto tudo numa tabela mensal | feita |
 | 06 | `06_features` | Vejo, com um Ridge, quais grupos de features ajudam de verdade | feita |
-| 07 | `07_modelos` | Comparo Ridge, Random Forest, LSTM e BiLSTM, ajustados com Optuna | a fazer |
+| 07 | `07_modelos` | Comparo Ridge, Random Forest, LSTM e BiLSTM, ajustados com Optuna | feita |
 | 08 | `08_modelo_final` | Treino o modelo escolhido e prevejo o próximo mês | a fazer |
 | 09 | `09_tabelas_figuras` | Gero as tabelas e figuras do relatório | a fazer |
 

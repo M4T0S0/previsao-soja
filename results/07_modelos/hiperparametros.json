@@ -1,0 +1,26 @@
+{
+  "rf": {
+    "n_estimators": 500,
+    "max_depth": 2,
+    "min_samples_leaf": 14,
+    "max_features": 0.6416988897428995
+  },
+  "lstm": {
+    "janela": 6,
+    "unidades": 11,
+    "camadas": 1,
+    "dropout": 0.35955182509409717,
+    "lr": 0.0002923462051591312,
+    "epocas": 80,
+    "weight_decay": 0.00038421607533969205
+  },
+  "bilstm": {
+    "janela": 6,
+    "unidades": 15,
+    "camadas": 1,
+    "dropout": 0.3524744676297933,
+    "lr": 0.0003473997766836303,
+    "epocas": 40,
+    "weight_decay": 0.0049488951386901445
+  }
+}

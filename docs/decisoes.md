@@ -174,3 +174,30 @@ Usei um Ridge (padronização + `RidgeCV`) com janela expansiva, retreinado todo
 Ou seja, quase todo o ganho sobre o passeio vem do efeito da média mensal, que o "último dia" já captura sozinho. Preço, El Niño, WASDE, fundos e exportações não acrescentam nada além do último preço. Também testei prever só o desvio em relação ao último dia (o Ridge "puxando" para o último dia em vez de para zero), e deu praticamente empate: entre 0,97 e 1,01 do último dia.
 
 Isso combina com a ideia de que o mercado de soja é eficiente: o último preço já resume quase tudo o que se sabe.
+
+## 07_modelos
+
+Testei modelos não lineares com as 13 features da etapa 06. Todos preveem o **desvio em relação ao último dia** (alvo − `fim_vs_media`), e a previsão final é último dia + desvio. Assim, um modelo que não aprende nada fica igual ao último dia, e qualquer ganho é ganho de verdade.
+
+O Optuna fez 30 tentativas por modelo, olhando só a validação (2010 a 2014), com retreino anual. No teste, as redes usam a média de 5 sementes. O Ridge sobre o desvio, retreinado todo mês, entrou como referência linear.
+
+Hiperparâmetros escolhidos:
+
+- **Random Forest:** 500 árvores, profundidade 2, mínimo de 14 meses por folha, 64% das features por divisão.
+- **LSTM:** janela de 6 meses, 11 unidades, 1 camada, dropout 0,36, 80 épocas.
+- **BiLSTM:** janela de 6 meses, 15 unidades, 1 camada, dropout 0,35, 40 épocas.
+
+O Optuna preferiu modelos bem pequenos (árvores rasas, redes com poucas unidades), o que já indica que não há muito padrão para aprender.
+
+Resultado no teste (janeiro de 2015 a junho de 2026, 138 meses):
+
+| Modelo | RMSE | ÷ passeio | ÷ último dia | p contra o último dia | Acerto de direção |
+|---|---|---|---|---|---|
+| Ridge | 0,0342 | 0,743 | 1,002 | 0,96 | 68,8% |
+| Random Forest | 0,0346 | 0,751 | 1,013 | 0,60 | 68,8% |
+| LSTM | 0,0340 | 0,738 | 0,995 | 0,86 | 69,6% |
+| BiLSTM | 0,0342 | 0,742 | 1,002 | 0,95 | 70,3% |
+
+Nenhum modelo ganhou do último dia. O melhor foi a LSTM, com erro 0,5% menor, mas a diferença é ruído (p = 0,86). No gráfico de vantagem acumulada, as redes e o Ridge passam um período na frente (2021 a 2023) e devolvem tudo depois.
+
+Conclusão: com estes dados, nem modelos lineares nem redes conseguem prever a soja melhor que o último preço do mês. Toda a vantagem sobre o passeio aleatório (cerca de 26%) vem do efeito da média mensal.
