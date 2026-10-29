@@ -157,12 +157,8 @@ def carregar_tabelas(cache: Path, desde: str = "2000-01") -> pd.DataFrame:
     return tabelas
 
 
-def resumo_do_relatorio(t: pd.DataFrame) -> dict:
-    """Números de um relatório, no ano-safra mais recente dele.
-
-    Estoque/uso = estoque final ÷ consumo total. Revisão = ln(valor deste relatório ÷ valor
-    do relatório anterior), que o próprio WASDE traz nas colunas de mês.
-    """
+def _ano_mais_recente(t: pd.DataFrame):
+    """Linhas do ano-safra mais recente do relatório e os meses das colunas ([anterior, atual])."""
     t = t.copy()
     t["ano_safra"] = t["ano"].str.extract(r"(\d{4}/\d{2})", expand=False)
     t["regiao"] = t["regiao"].str.replace(r"\s*\d/$", "", regex=True).str.strip()
@@ -170,22 +166,43 @@ def resumo_do_relatorio(t: pd.DataFrame) -> dict:
     ultimo = t[t["ano_safra"] == t["ano_safra"].max()]
     if "mes" not in ultimo or ultimo["mes"].isna().all():
         ultimo = ultimo.assign(mes="atual")
-    meses = list(dict.fromkeys(ultimo["mes"].dropna()))  # na ordem do relatório: [anterior, atual]
+    return ultimo, list(dict.fromkeys(ultimo["mes"].dropna()))
 
-    def valor(regiao, item, qual=-1):
-        sel = ultimo[(ultimo["regiao"] == regiao) & ultimo["item"].str.startswith(item) & (ultimo["mes"] == meses[qual])]
-        return sel["valor"].iloc[0] if len(sel) else np.nan
 
-    def revisao(regiao, item):
-        atual = valor(regiao, item)
-        antes = valor(regiao, item, 0) if len(meses) > 1 else np.nan
-        return np.log(atual / antes) if antes > 0 and atual > 0 else 0.0
+def _valor(ultimo, meses, regiao, item, qual=-1):
+    sel = ultimo[(ultimo["regiao"] == regiao) & ultimo["item"].str.startswith(item) & (ultimo["mes"] == meses[qual])]
+    return sel["valor"].iloc[0] if len(sel) else np.nan
 
+
+def _revisao(ultimo, meses, regiao, item):
+    """ln(valor deste relatório ÷ valor do relatório anterior), que o WASDE traz nas colunas de mês."""
+    atual = _valor(ultimo, meses, regiao, item)
+    antes = _valor(ultimo, meses, regiao, item, 0) if len(meses) > 1 else np.nan
+    return np.log(atual / antes) if antes > 0 and atual > 0 else 0.0
+
+
+def resumo_do_relatorio(t: pd.DataFrame) -> dict:
+    """Números de um relatório, no ano-safra mais recente dele. Estoque/uso = estoque final ÷ consumo total."""
+    ultimo, meses = _ano_mais_recente(t)
     return {
         "ano_safra": ultimo["ano_safra"].iloc[0],
-        "estoque_uso_mundo": valor("World", "Ending Stocks") / valor("World", "Domestic Total"),
-        "estoque_uso_eua": valor("United States", "Ending Stocks") / valor("United States", "Domestic Total"),
-        "revisao_brasil": revisao("Brazil", "Production"),
-        "revisao_eua": revisao("United States", "Production"),
-        "revisao_china_import": revisao("China", "Imports"),
+        "estoque_uso_mundo": _valor(ultimo, meses, "World", "Ending Stocks") / _valor(ultimo, meses, "World", "Domestic Total"),
+        "estoque_uso_eua": _valor(ultimo, meses, "United States", "Ending Stocks") / _valor(ultimo, meses, "United States", "Domestic Total"),
+        "revisao_brasil": _revisao(ultimo, meses, "Brazil", "Production"),
+        "revisao_eua": _revisao(ultimo, meses, "United States", "Production"),
+        "revisao_china_import": _revisao(ultimo, meses, "China", "Imports"),
     }
+
+
+# revisões extras testadas na etapa 04: (região, item da tabela)
+REVISOES_EXTRAS = {
+    "revisao_argentina": ("Argentina", "Production"),
+    "revisao_eua_export": ("United States", "Exports"),
+    "revisao_eua_esmagamento": ("United States", "Domestic Crush"),
+    "revisao_estoque_mundo": ("World", "Ending Stocks"),
+}
+
+
+def revisoes_extras(t: pd.DataFrame) -> dict:
+    ultimo, meses = _ano_mais_recente(t)
+    return {nome: _revisao(ultimo, meses, regiao, item) for nome, (regiao, item) in REVISOES_EXTRAS.items()}

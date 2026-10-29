@@ -50,3 +50,46 @@ def features_wasde(tabelas: pd.DataFrame) -> pd.DataFrame:
     saida[ESTOQUES] = saida[ESTOQUES].ffill()
     saida[REVISOES] = saida[REVISOES].fillna(0.0)
     return saida
+
+
+def features_wasde_extras(tabelas: pd.DataFrame) -> pd.DataFrame:
+    """Revisões extras do WASDE (etapa 04). Mês sem relatório = revisão 0."""
+    from .wasde import revisoes_extras
+
+    extras = pd.DataFrame({pd.Period(r, "M"): revisoes_extras(t) for r, t in tabelas.groupby("relatorio")}).T.sort_index()
+    todos = pd.period_range(extras.index.min(), extras.index.max(), freq="M")
+    return extras.reindex(todos).apply(pd.to_numeric).fillna(0.0)
+
+
+def features_fundos(cot: pd.DataFrame) -> pd.DataFrame:
+    """Posição líquida dos fundos (compras − vendas) ÷ contratos em aberto, no fim de cada mês.
+
+    O relatório da terça sai na sexta, então só uso relatórios publicados até o último dia do mês.
+    """
+    publicado = cot["data"] + pd.Timedelta(days=3)
+    liquido = (cot["fundos_compra"] - cot["fundos_venda"]) / cot["contratos"]
+    mensal = liquido.groupby(publicado.dt.to_period("M")).last()
+    mensal = mensal.reindex(pd.period_range(mensal.index.min(), mensal.index.max(), freq="M")).ffill()
+    return pd.DataFrame({
+        "fundos_liquido": mensal,              # quanto os fundos apostam na alta (+) ou na baixa (−)
+        "fundos_var": mensal.diff(),           # quanto essa aposta mudou no mês
+    })
+
+
+def features_momentum(preco: pd.Series) -> pd.DataFrame:
+    """Tendências mais longas e volatilidade do próprio preço."""
+    log_p = np.log(preco)
+    return pd.DataFrame({
+        "tendencia_6m": log_p.diff(6),
+        "tendencia_12m": log_p.diff(12),
+        "volatilidade_6m": log_p.diff().rolling(6).std(),  # quanto o preço tem oscilado
+    })
+
+
+def features_exportacao(exportacao: pd.Series) -> pd.DataFrame:
+    """Exportação de soja do Brasil contra o mesmo mês do ano anterior.
+
+    O dado de um mês só sai no começo do mês seguinte, então a linha t usa o mês t−1.
+    """
+    var_12m = np.log(exportacao).diff(12)
+    return pd.DataFrame({"exportacao_br_12m": var_12m.shift(1)})
