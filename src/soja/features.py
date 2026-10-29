@@ -19,3 +19,12 @@ def features_preco(preco: pd.Series) -> pd.DataFrame:
         "dlog_preco_lag1": log_p.diff().shift(1),  # quanto variou no mês anterior
         "tendencia_3m": log_p.diff(3),         # quanto variou nos últimos 3 meses
     })
+
+
+def features_enso(oni: pd.Series) -> pd.DataFrame:
+    """Features do El Niño a partir do ONI."""
+    return pd.DataFrame({
+        "oni": oni,                    # intensidade do El Niño (+) ou La Niña (−)
+        "oni_lag2": oni.shift(2),      # ONI de 2 meses antes
+        "oni_var3": oni.diff(3),       # quanto o ONI mudou em 3 meses
+    })

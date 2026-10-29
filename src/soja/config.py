@@ -33,3 +33,12 @@ def salvar_config(pasta: Path, **parametros) -> None:
     base = {"inicio": INICIO, "teste_inicio": TESTE_INICIO, "teste_fim": TESTE_FIM, "semente": SEMENTE}
     base.update(parametros)
     (pasta / "config.json").write_text(json.dumps(base, indent=2, ensure_ascii=False))
+
+
+def ler_resultado(etapa: str, arquivo: str) -> Path:
+    """Acha um arquivo de uma etapa anterior: primeiro na saída desta rodada, depois no repositório."""
+    for base in (RESULTS, RAIZ / "results"):
+        caminho = base / etapa / arquivo
+        if caminho.exists():
+            return caminho
+    raise FileNotFoundError(f"Não achei {etapa}/{arquivo}. Rode a etapa {etapa} antes.")
