@@ -21,7 +21,7 @@ Fui dividindo o trabalho em etapas numeradas, cada uma com o seu notebook:
 | 02 | `02_enso` | Trago o índice do El Niño (ONI) | feita |
 | 03 | `03_wasde` | Leio os relatórios WASDE do USDA sobre oferta e demanda | feita |
 | 04 | `04_extras` | Testo fontes novas que podem virar features | feita |
-| 05 | `05_tabela` | Junto tudo numa tabela mensal | a fazer |
+| 05 | `05_tabela` | Junto tudo numa tabela mensal | feita |
 | 06 | `06_features` | Vejo, com um Ridge, quais grupos de features ajudam de verdade | a fazer |
 | 07 | `07_modelos` | Comparo Ridge, Random Forest, LSTM e BiLSTM, ajustados com Optuna | a fazer |
 | 08 | `08_modelo_final` | Treino o modelo escolhido e prevejo o próximo mês | a fazer |

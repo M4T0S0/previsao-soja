@@ -1,0 +1,51 @@
+{
+  "inicio": "2000-01",
+  "teste_inicio": "2015-01",
+  "teste_fim": "2026-06",
+  "semente": 42,
+  "meses": 321,
+  "primeiro_mes": "2000-01",
+  "ultimo_mes": "2026-09",
+  "mes_a_prever": "2026-09",
+  "grupos": {
+    "preco": [
+      "dlog_preco",
+      "dlog_preco_lag1",
+      "tendencia_3m"
+    ],
+    "sazonalidade": [
+      "mes_sin",
+      "mes_cos"
+    ],
+    "enso": [
+      "oni",
+      "oni_lag2",
+      "oni_lag8",
+      "oni_var3"
+    ],
+    "wasde": [
+      "estoque_uso_mundo",
+      "estoque_uso_eua",
+      "revisao_brasil",
+      "revisao_eua",
+      "revisao_china_import"
+    ],
+    "extras": [
+      "revisao_argentina",
+      "revisao_eua_export",
+      "revisao_eua_esmagamento",
+      "revisao_estoque_mundo",
+      "fundos_liquido",
+      "fundos_var",
+      "tendencia_6m",
+      "tendencia_12m",
+      "volatilidade_6m",
+      "exportacao_br_12m",
+      "fim_vs_media",
+      "ultima_semana",
+      "gestores_liquido",
+      "gestores_var",
+      "produtores_var"
+    ]
+  }
+}

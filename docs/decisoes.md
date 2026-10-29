@@ -110,3 +110,30 @@ O `fim_vs_media` (último dia contra a média do mês, com o preço diário de C
 Isso muda a régua. Só de prever que a média do mês que vem vai ser igual ao preço do último dia, o erro no teste cai para **0,741** do passeio aleatório, sem modelo nenhum. Ou seja, boa parte do que parecia "previsão" é só o efeito da média. Por isso, a partir da etapa 06, comparo os modelos com duas referências: o passeio aleatório e o "último dia".
 
 Os gestores e produtores só existem desde 2006 (o relatório desagregado da CFTC começa aí), e o `fim_vs_media` não tem 8 meses no começo da série.
+
+## 05_tabela
+
+Juntei tudo numa tabela só: 321 meses (janeiro de 2000 a setembro de 2026) e 29 features, mais o preço e o alvo. A última linha, setembro de 2026, não tem alvo, porque é dela que sai a previsão de outubro. Também incluí o mês do ano como seno e cosseno (`mes_sin`, `mes_cos`), para dezembro ficar perto de janeiro.
+
+Meses sem valor:
+
+- O começo da série, por causa das diferenças e médias móveis (até 12 meses na `tendencia_12m`).
+- `fim_vs_media` e `ultima_semana` começam em setembro de 2000, quando começa o preço diário do Yahoo.
+- `gestores_*` e `produtores_var` só existem a partir de junho de 2006.
+
+Pares que trazem quase a mesma informação (correlação acima de 0,7 em módulo):
+
+| Par | Correlação |
+|---|---|
+| `fundos_liquido` × `gestores_liquido` | 0,95 |
+| `fundos_var` × `produtores_var` | −0,95 |
+| `fundos_var` × `gestores_var` | 0,93 |
+| `gestores_var` × `produtores_var` | −0,90 |
+| `oni` × `oni_lag2` | 0,89 |
+| `dlog_preco_lag1` × `tendencia_3m` | 0,77 |
+| `fim_vs_media` × `ultima_semana` | 0,77 |
+| `tendencia_3m` × `tendencia_6m` | 0,73 |
+
+Os fundos do relatório antigo e os do desagregado medem praticamente a mesma coisa, e os antigos têm a vantagem de começar em 2000. Vou levar isso em conta na etapa 06.
+
+A `exportacao_br_12m` tem valores extremos (−8,3 em fevereiro de 2013, +4,8 em fevereiro de 2014), em meses de entressafra em que a exportação quase zera e a razão contra o ano anterior explode.

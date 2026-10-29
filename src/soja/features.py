@@ -124,3 +124,9 @@ def features_fundos_por_tipo(cot: pd.DataFrame) -> pd.DataFrame:
         "gestores_var": gestores.diff(),
         "produtores_var": produtores.diff(),
     })
+
+
+def features_sazonalidade(meses: pd.PeriodIndex) -> pd.DataFrame:
+    """Mês do ano como um ponto no círculo, para dezembro ficar perto de janeiro."""
+    angulo = 2 * np.pi * meses.month / 12
+    return pd.DataFrame({"mes_sin": np.sin(angulo), "mes_cos": np.cos(angulo)}, index=meses)
