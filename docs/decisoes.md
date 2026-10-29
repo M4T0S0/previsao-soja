@@ -38,4 +38,6 @@ Antes do teste, a correlação do ONI de *k* meses antes com o alvo muda de sina
 |---|---|---|---|---|---|---|---|
 | Correlação | −0,11 | −0,05 | 0,09 | 0,15 | 0,21 | 0,20 | 0,13 |
 
-As features que montei tiveram estas correlações: `oni` −0,11, `oni_lag2` −0,05 e `oni_var3` −0,17.
+As features que montei tiveram estas correlações: `oni` −0,11, `oni_lag2` −0,05, `oni_lag8` +0,21 e `oni_var3` −0,17.
+
+Faz sentido o efeito aparecer com atraso: o El Niño mexe com a safra da América do Sul meses depois, e só aí o preço reage. Guardei o `oni_lag2` e o `oni_lag8` e vou deixar o Ridge decidir entre eles na etapa 06.
