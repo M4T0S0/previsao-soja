@@ -29,3 +29,24 @@ def features_enso(oni: pd.Series) -> pd.DataFrame:
         "oni_lag8": oni.shift(8),      # ONI de 8 meses antes (efeito na safra chega depois)
         "oni_var3": oni.diff(3),       # quanto o ONI mudou em 3 meses
     })
+
+
+ESTOQUES = ["estoque_uso_mundo", "estoque_uso_eua"]
+REVISOES = ["revisao_brasil", "revisao_eua", "revisao_china_import"]
+
+
+def features_wasde(tabelas: pd.DataFrame) -> pd.DataFrame:
+    """Features de oferta, uma linha por mês, a partir das tabelas de soja do WASDE.
+
+    Mês sem relatório: repito o último estoque/uso e uso revisão 0 (nada foi revisado).
+    """
+    from .wasde import resumo_do_relatorio
+
+    resumo = pd.DataFrame({pd.Period(r, "M"): resumo_do_relatorio(t) for r, t in tabelas.groupby("relatorio")}).T
+    resumo = resumo.sort_index()
+    todos = pd.period_range(resumo.index.min(), resumo.index.max(), freq="M")
+    saida = resumo.reindex(todos)[ESTOQUES + REVISOES].apply(pd.to_numeric)
+    saida["sem_relatorio"] = ~todos.isin(resumo.index)
+    saida[ESTOQUES] = saida[ESTOQUES].ffill()
+    saida[REVISOES] = saida[REVISOES].fillna(0.0)
+    return saida
