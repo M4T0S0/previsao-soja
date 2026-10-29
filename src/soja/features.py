@@ -26,5 +26,6 @@ def features_enso(oni: pd.Series) -> pd.DataFrame:
     return pd.DataFrame({
         "oni": oni,                    # intensidade do El Niño (+) ou La Niña (−)
         "oni_lag2": oni.shift(2),      # ONI de 2 meses antes
+        "oni_lag8": oni.shift(8),      # ONI de 8 meses antes (efeito na safra chega depois)
         "oni_var3": oni.diff(3),       # quanto o ONI mudou em 3 meses
     })
