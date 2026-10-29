@@ -1,5 +1,6 @@
 """Download das séries mensais usadas no projeto."""
 import io
+import time
 import zipfile
 
 import pandas as pd
@@ -66,22 +67,40 @@ def baixar_cot(ate: int) -> pd.DataFrame:
     return pd.concat(partes).drop_duplicates("data").sort_values("data").reset_index(drop=True)
 
 
-# Comex Stat (governo federal): exportações mensais de soja em grão (posição SH4 1201)
+# Comex Stat (governo federal): exportações mensais de soja em grão.
+# O código NCM da soja em grão mudou em 2012: 12010090 até 2011 e 12019000 depois.
 URL_COMEX = "https://api-comexstat.mdic.gov.br/general"
+NCM_SOJA = ["12010090", "12019000"]
+
+
+def _consulta_comex(ano: int) -> pd.DataFrame:
+    corpo = {
+        "flow": "export", "monthDetail": True,
+        "period": {"from": f"{ano}-01", "to": f"{ano}-12"},
+        "filters": [{"filter": "ncm", "values": NCM_SOJA}],
+        "details": ["ncm"], "metrics": ["metricKG"],
+    }
+    for tentativa in range(5):
+        resposta = requests.post(URL_COMEX, json=corpo, timeout=120)
+        if resposta.status_code == 429:  # muitas consultas seguidas: espera e tenta de novo
+            time.sleep(15)
+            continue
+        dados = resposta.json()
+        if "data" not in dados:
+            raise RuntimeError(f"Comex Stat respondeu {resposta.status_code} em {ano}: {dados}")
+        lista = dados["data"]["list"] if isinstance(dados["data"], dict) else dados["data"]
+        return pd.DataFrame(lista)
+    raise RuntimeError(f"Comex Stat recusou as consultas de {ano} (limite de acessos)")
 
 
 def baixar_exportacoes_br(desde: int, ate: int) -> pd.Series:
     """Toneladas de soja em grão exportadas pelo Brasil por mês."""
     partes = []
     for ano in range(desde, ate + 1):
-        corpo = {
-            "flow": "export", "monthDetail": True,
-            "period": {"from": f"{ano}-01", "to": f"{ano}-12"},
-            "filters": [{"filter": "heading", "values": ["1201"]}],
-            "details": [], "metrics": ["metricKG"],
-        }
-        resposta = requests.post(URL_COMEX, json=corpo, timeout=120)
-        partes.append(pd.DataFrame(resposta.json()["data"]["list"]))
+        partes.append(_consulta_comex(ano))
+        time.sleep(2)
     df = pd.concat(partes)
-    meses = pd.PeriodIndex.from_fields(year=df["year"].astype(int), month=df["monthNumber"].astype(int), freq="M")
-    return pd.Series(pd.to_numeric(df["metricKG"]).values / 1000, index=meses, name="exportacao_t").sort_index()
+    col = lambda trecho: next(c for c in df.columns if trecho.lower() in c.lower())
+    meses = pd.PeriodIndex.from_fields(year=df[col("year")].astype(int), month=df[col("monthnumber")].astype(int), freq="M")
+    toneladas = pd.to_numeric(df[col("kg")]).values / 1000
+    return pd.Series(toneladas, index=meses, name="exportacao_t").groupby(level=0).sum().sort_index()
