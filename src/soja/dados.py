@@ -67,6 +67,43 @@ def baixar_cot(ate: int) -> pd.DataFrame:
     return pd.concat(partes).drop_duplicates("data").sort_values("data").reset_index(drop=True)
 
 
+# Relatório desagregado da CFTC (desde 2006): separa gestores de fundos (managed money)
+# de produtores e indústrias (producer/merchant), que usam o mercado para se proteger.
+URL_DESAGREGADO_HISTORICO = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_hist_2006_2016.zip"
+URL_DESAGREGADO_ANO = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_{ano}.zip"
+
+
+def baixar_cot_desagregado(ate: int) -> pd.DataFrame:
+    """Posições semanais da soja por tipo de participante."""
+    urls = [URL_DESAGREGADO_HISTORICO] + [URL_DESAGREGADO_ANO.format(ano=a) for a in range(2017, ate + 1)]
+    partes = []
+    for url in urls:
+        df = _ler_zip_csv(url)
+        col = lambda trecho: next(c for c in df.columns if trecho.lower() in c.lower())
+        codigo = df[col("CFTC_Contract_Market_Code")].str.strip().str.zfill(6)
+        df = df[codigo == CODIGO_SOJA_CBOT]
+        partes.append(pd.DataFrame({
+            "data": pd.to_datetime(df[col("YYYY-MM-DD")]),
+            "contratos": pd.to_numeric(df[col("Open_Interest_All")]),
+            "gestores_compra": pd.to_numeric(df[col("M_Money_Positions_Long_All")]),
+            "gestores_venda": pd.to_numeric(df[col("M_Money_Positions_Short_All")]),
+            "produtores_compra": pd.to_numeric(df[col("Prod_Merc_Positions_Long_All")]),
+            "produtores_venda": pd.to_numeric(df[col("Prod_Merc_Positions_Short_All")]),
+        }))
+    return pd.concat(partes).drop_duplicates("data").sort_values("data").reset_index(drop=True)
+
+
+def baixar_soja_diaria(desde: str = "2000-01-01") -> pd.Series:
+    """Fechamento diário do contrato contínuo de soja em Chicago (ZS=F, Yahoo Finance), em centavos de dólar por bushel."""
+    import yfinance as yf
+
+    df = yf.download("ZS=F", start=desde, progress=False, auto_adjust=False)
+    fechamento = df["Close"]
+    if isinstance(fechamento, pd.DataFrame):  # versões novas do yfinance devolvem uma coluna por ticker
+        fechamento = fechamento.iloc[:, 0]
+    return fechamento.dropna().rename("soja_chicago")
+
+
 # Comex Stat (governo federal): exportações mensais de soja em grão.
 # O código NCM da soja em grão mudou em 2012: 12010090 até 2011 e 12019000 depois.
 URL_COMEX = "https://api-comexstat.mdic.gov.br/general"

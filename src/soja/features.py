@@ -93,3 +93,34 @@ def features_exportacao(exportacao: pd.Series) -> pd.DataFrame:
     """
     var_12m = np.log(exportacao).diff(12)
     return pd.DataFrame({"exportacao_br_12m": var_12m.shift(1)})
+
+
+def features_fim_do_mes(diario: pd.Series) -> pd.DataFrame:
+    """Como o mês terminou em relação à média dele, a partir do preço diário de Chicago.
+
+    O alvo é a média do mês seguinte, e o fim do mês já aponta para onde essa média vai começar.
+    """
+    log_p = np.log(diario)
+    mes = log_p.index.to_period("M")
+    ultimo = log_p.groupby(mes).last()
+    media = log_p.groupby(mes).mean()
+    cinco_dias_antes = log_p.groupby(mes).apply(lambda x: x.iloc[-6] if len(x) > 5 else np.nan)
+    return pd.DataFrame({
+        "fim_vs_media": ultimo - media,                 # último dia acima (+) ou abaixo (−) da média do mês
+        "ultima_semana": ultimo - cinco_dias_antes,     # variação nos últimos 5 pregões
+    })
+
+
+def features_fundos_por_tipo(cot: pd.DataFrame) -> pd.DataFrame:
+    """Posição líquida ÷ contratos em aberto de gestores de fundos e de produtores/indústrias, no fim do mês."""
+    publicado = cot["data"] + pd.Timedelta(days=3)
+    mes = publicado.dt.to_period("M")
+    gestores = ((cot["gestores_compra"] - cot["gestores_venda"]) / cot["contratos"]).groupby(mes).last()
+    produtores = ((cot["produtores_compra"] - cot["produtores_venda"]) / cot["contratos"]).groupby(mes).last()
+    todos = pd.period_range(gestores.index.min(), gestores.index.max(), freq="M")
+    gestores, produtores = gestores.reindex(todos).ffill(), produtores.reindex(todos).ffill()
+    return pd.DataFrame({
+        "gestores_liquido": gestores,
+        "gestores_var": gestores.diff(),
+        "produtores_var": produtores.diff(),
+    })
