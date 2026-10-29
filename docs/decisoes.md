@@ -57,3 +57,39 @@ Antes do teste, as correlações ficaram assim:
 | `revisao_china_import` | 0,03 | −0,01 |
 
 Sozinhas, elas quase não se relacionam com o alvo. Faz sentido, porque o mercado reage ao relatório no próprio mês. A revisão dos EUA mostra isso bem: o preço cai no mês em que a produção é revisada para cima (−0,18) e devolve um pouco no mês seguinte (+0,06). Mesmo fracas, mantenho as cinco para testar no Ridge, porque juntas com o preço e o El Niño elas podem ajudar.
+
+## 04_extras
+
+Testei quatro grupos novos de features:
+
+- **Mais revisões do WASDE:** produção da Argentina, exportações e esmagamento dos EUA e estoque final do mundo.
+- **Fundos (CFTC):** posição líquida dos especuladores na soja de Chicago (compras − vendas ÷ contratos em aberto) e quanto ela mudou no mês. Só uso relatórios publicados até o fim do mês.
+- **Momentum e volatilidade:** tendência de 6 e 12 meses e desvio padrão da variação nos últimos 6 meses.
+- **Exportações do Brasil (Comex Stat):** soja em grão contra o mesmo mês do ano anterior, usando o mês anterior, porque o dado sai só no começo do mês seguinte. A API do Comex Stat limita o número de consultas, então baixo tudo numa consulta só.
+
+Correlação com o alvo antes do teste:
+
+| Feature | Correlação |
+|---|---|
+| `fundos_var` | 0,38 |
+| `fundos_liquido` | 0,14 |
+| `tendencia_6m` | 0,08 |
+| `revisao_eua_export` | 0,06 |
+| `exportacao_br_12m` | 0,06 |
+| `revisao_eua_esmagamento` | 0,03 |
+| `revisao_estoque_mundo` | −0,02 |
+| `tendencia_12m` | −0,03 |
+| `revisao_argentina` | −0,05 |
+| `volatilidade_6m` | −0,19 |
+
+A `fundos_var` virou a feature mais correlacionada de todas, acima até da variação do próprio preço (0,35). Desconfiei e conferi três coisas:
+
+1. **Não é vazamento:** a posição vem do relatório de terça, publicado na sexta, e só entram relatórios publicados até o último dia do mês.
+2. **Não é só o preço disfarçado:** descontando o efeito do `dlog_preco`, a correlação ainda fica em 0,25.
+3. **Continua no teste:** de 2015 a 2026 a correlação é 0,25.
+
+A minha explicação é que o preço do FMI é a média do mês. A posição dos fundos no fim do mês carrega o que aconteceu nas últimas semanas, e isso ainda vai pesar na média do mês seguinte.
+
+A volatilidade também chamou atenção (−0,19): depois de meses agitados, o preço tende a cair no mês seguinte.
+
+A `exportacao_br_12m` tem alguns valores extremos nos primeiros anos, quando um mês quase não teve exportação. Vou ficar de olho nisso no Ridge.
