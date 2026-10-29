@@ -27,3 +27,15 @@ Antes do teste (2000 a 2014), a correlação de cada feature com o alvo foi:
 Isso mostra que o preço tem um pouco de "embalo": quando sobe num mês, tende a subir um pouco no seguinte. Por isso mantenho as três features.
 
 No teste (janeiro de 2015 a junho de 2026, 138 meses), o RMSE do passeio aleatório é **0,0461**, cerca de 4,6% por mês. Esse é o número que os modelos precisam bater.
+
+## 02_enso
+
+Baixei o ONI da NOAA (321 meses, até setembro de 2026). Como cada valor é a média de um trimestre, coloquei ele no último mês do trimestre (DJF vai para fevereiro), que é quando ele já é conhecido. Em setembro de 2026 o ONI está em 2,16, um El Niño forte.
+
+Antes do teste, a correlação do ONI de *k* meses antes com o alvo muda de sinal com o atraso:
+
+| k (meses) | 0 | 2 | 4 | 6 | 8 | 10 | 12 |
+|---|---|---|---|---|---|---|---|
+| Correlação | −0,11 | −0,05 | 0,09 | 0,15 | 0,21 | 0,20 | 0,13 |
+
+As features que montei tiveram estas correlações: `oni` −0,11, `oni_lag2` −0,05 e `oni_var3` −0,17.

@@ -18,7 +18,7 @@ Fui dividindo o trabalho em etapas numeradas, cada uma com o seu notebook:
 | Etapa | Notebook | O que faço nela | Situação |
 |---|---|---|---|
 | 01 | `01_preco` | Baixo o preço da soja, calculo o alvo e as features de preço | feita |
-| 02 | `02_enso` | Trago o índice do El Niño (ONI) | a fazer |
+| 02 | `02_enso` | Trago o índice do El Niño (ONI) | feita |
 | 03 | `03_wasde` | Leio os relatórios WASDE do USDA sobre oferta e demanda | a fazer |
 | 04 | `04_extras` | Testo fontes novas que podem virar features | a fazer |
 | 05 | `05_tabela` | Junto tudo numa tabela mensal | a fazer |

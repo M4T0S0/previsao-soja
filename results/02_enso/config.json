@@ -1,0 +1,9 @@
+{
+  "inicio": "2000-01",
+  "teste_inicio": "2015-01",
+  "teste_fim": "2026-06",
+  "semente": 42,
+  "fonte": "NOAA CPC oni.ascii.txt",
+  "meses": 321,
+  "ultimo_mes": "2026-09"
+}
