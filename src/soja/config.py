@@ -25,3 +25,11 @@ def pasta_resultados(etapa: str) -> Path:
     pasta = RESULTS / etapa
     pasta.mkdir(parents=True, exist_ok=True)
     return pasta
+
+
+def salvar_config(pasta: Path, **parametros) -> None:
+    """Grava config.json com os parâmetros da rodada."""
+    import json
+    base = {"inicio": INICIO, "teste_inicio": TESTE_INICIO, "teste_fim": TESTE_FIM, "semente": SEMENTE}
+    base.update(parametros)
+    (pasta / "config.json").write_text(json.dumps(base, indent=2, ensure_ascii=False))
