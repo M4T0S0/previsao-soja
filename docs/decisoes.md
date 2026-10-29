@@ -137,3 +137,40 @@ Pares que trazem quase a mesma informação (correlação acima de 0,7 em módul
 Os fundos do relatório antigo e os do desagregado medem praticamente a mesma coisa, e os antigos têm a vantagem de começar em 2000. Vou levar isso em conta na etapa 06.
 
 A `exportacao_br_12m` tem valores extremos (−8,3 em fevereiro de 2013, +4,8 em fevereiro de 2014), em meses de entressafra em que a exportação quase zera e a razão contra o ano anterior explode.
+
+## 06_features
+
+Usei um Ridge (padronização + `RidgeCV`) com janela expansiva, retreinado todo mês. Para não escolher as features olhando o teste, separei um período de **validação (2010 a 2014)**: escolho os grupos ali e só depois confiro no teste (janeiro de 2015 a junho de 2026). A `exportacao_br_12m` foi limitada em ±1 por causa dos extremos da entressafra.
+
+**Referências:**
+
+| | Validação | Teste |
+|---|---|---|
+| Passeio (RMSE) | 0,0534 | 0,0461 |
+| Último dia (RMSE) | 0,0389 | 0,0342 |
+| Último dia ÷ passeio | 0,727 | 0,741 |
+
+**Cada grupo somado à base** (base = preço + sazonalidade), RMSE no teste:
+
+| Modelo | ÷ passeio | ÷ último dia |
+|---|---|---|
+| base | 0,969 | 1,307 |
+| + enso | 0,981 | 1,323 |
+| + wasde | 0,959 | 1,293 |
+| + wasde_extras | 0,966 | 1,303 |
+| + fundos | 0,965 | 1,302 |
+| + momentum | 0,975 | 1,316 |
+| + exportacao | 0,969 | 1,307 |
+| + fim_do_mes | 0,747 | 1,007 |
+| + fundos_por_tipo | 0,980 | 1,322 |
+
+**Seleção para frente na validação:** base → + fim_do_mes → + enso → + fundos. Depois disso nenhum grupo reduziu o erro.
+
+**Conjunto escolhido no teste** (13 features): RMSE 0,0359, acerto de direção 66,7%.
+
+- Contra o passeio: **0,779** (p = 0,003). Ganha com folga e de forma significativa.
+- Contra o último dia: **1,051** (p = 0,24). Fica um pouco pior, mas a diferença não é significativa.
+
+Ou seja, quase todo o ganho sobre o passeio vem do efeito da média mensal, que o "último dia" já captura sozinho. Preço, El Niño, WASDE, fundos e exportações não acrescentam nada além do último preço. Também testei prever só o desvio em relação ao último dia (o Ridge "puxando" para o último dia em vez de para zero), e deu praticamente empate: entre 0,97 e 1,01 do último dia.
+
+Isso combina com a ideia de que o mercado de soja é eficiente: o último preço já resume quase tudo o que se sabe.

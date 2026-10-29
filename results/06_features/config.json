@@ -1,0 +1,40 @@
+{
+  "inicio": "2000-01",
+  "teste_inicio": "2015-01",
+  "teste_fim": "2026-06",
+  "semente": 42,
+  "modelo": "StandardScaler + RidgeCV",
+  "alphas": [
+    0.01,
+    10000.0
+  ],
+  "validacao": [
+    "2010-01",
+    "2014-12"
+  ],
+  "base": [
+    "preco",
+    "sazonalidade"
+  ],
+  "escolhidos": [
+    "fim_do_mes",
+    "enso",
+    "fundos"
+  ],
+  "colunas_finais": [
+    "dlog_preco",
+    "dlog_preco_lag1",
+    "tendencia_3m",
+    "mes_sin",
+    "mes_cos",
+    "fim_vs_media",
+    "ultima_semana",
+    "oni",
+    "oni_lag2",
+    "oni_lag8",
+    "oni_var3",
+    "fundos_liquido",
+    "fundos_var"
+  ],
+  "exportacao_limitada_em": 1
+}

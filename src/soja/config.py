@@ -8,6 +8,25 @@ INICIO = "2000-01"
 TESTE_INICIO = "2015-01"
 TESTE_FIM = "2026-06"
 
+# Período usado para escolher as features, antes do teste
+VALIDACAO_INICIO = "2010-01"
+VALIDACAO_FIM = "2014-12"
+
+# Grupos de features (colunas da tabela mensal da etapa 05)
+GRUPOS = {
+    "preco": ["dlog_preco", "dlog_preco_lag1", "tendencia_3m"],
+    "sazonalidade": ["mes_sin", "mes_cos"],
+    "enso": ["oni", "oni_lag2", "oni_lag8", "oni_var3"],
+    "wasde": ["estoque_uso_mundo", "estoque_uso_eua", "revisao_brasil", "revisao_eua", "revisao_china_import"],
+    "wasde_extras": ["revisao_argentina", "revisao_eua_export", "revisao_eua_esmagamento", "revisao_estoque_mundo"],
+    "fundos": ["fundos_liquido", "fundos_var"],
+    "momentum": ["tendencia_6m", "tendencia_12m", "volatilidade_6m"],
+    "exportacao": ["exportacao_br_12m"],
+    "fim_do_mes": ["fim_vs_media", "ultima_semana"],
+    "fundos_por_tipo": ["gestores_liquido", "gestores_var", "produtores_var"],
+}
+BASE = ["preco", "sazonalidade"]
+
 SEMENTE = 42
 
 # Pasta do projeto: o repositório no computador ou o dataset no Kaggle
