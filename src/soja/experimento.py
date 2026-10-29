@@ -49,3 +49,37 @@ def selecao_para_frente(tabela: pd.DataFrame, base: list, grupos: dict, inicio: 
         escolhidos.append(melhor)
         historico.append((melhor, testes[melhor]))
     return escolhidos, historico
+
+
+def janelas(tabela: pd.DataFrame, colunas: list, janela: int) -> dict:
+    """Para cada mês, a matriz (janela × features) com ele e os meses anteriores, se estiverem completos."""
+    dados = tabela[colunas]
+    saida = {}
+    for i in range(janela - 1, len(dados)):
+        bloco = dados.iloc[i - janela + 1:i + 1]
+        if not bloco.isna().any(axis=None):
+            saida[dados.index[i]] = bloco.to_numpy()
+    return saida
+
+
+def retreino_anual(tabela: pd.DataFrame, colunas: list, alvo: str, fazer_modelo, inicio: str, fim: str,
+                   janela: int = 1, sequencial: bool = False) -> pd.Series:
+    """Previsão mês a mês, retreinando o modelo uma vez por ano com todo o passado.
+
+    O modelo de cada ano é treinado só com meses anteriores a janeiro daquele ano.
+    Com `sequencial`, o modelo recebe (amostras, janela, features); senão, a janela achatada.
+    """
+    blocos = janelas(tabela, colunas, janela)
+    formato = (lambda m: m) if sequencial else (lambda m: m.reshape(len(m), -1))
+    meses_teste = [m for m in tabela.loc[inicio:fim].index if m in blocos]
+    previsoes = {}
+    for ano in sorted({m.year for m in meses_teste}):
+        corte = pd.Period(f"{ano}-01", "M")
+        # o alvo de dezembro depende do preço de janeiro, então o treino vai até novembro
+        treino = [m for m in blocos if m < corte - 1 and not np.isnan(tabela.at[m, alvo])]
+        X = formato(np.stack([blocos[m] for m in treino]))
+        y = tabela.loc[treino, alvo].to_numpy()
+        modelo = fazer_modelo().fit(X, y)
+        meses = [m for m in meses_teste if m.year == ano]
+        previsoes.update(zip(meses, modelo.predict(formato(np.stack([blocos[m] for m in meses])))))
+    return pd.Series(previsoes, name="previsao")

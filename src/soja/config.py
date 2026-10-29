@@ -28,6 +28,8 @@ GRUPOS = {
 BASE = ["preco", "sazonalidade"]
 
 SEMENTE = 42
+SEMENTES = [0, 1, 2, 3, 4]  # as redes são treinadas com 5 sementes e a previsão é a média
+N_TRIALS = 30  # tentativas do Optuna por modelo
 
 # Pasta do projeto: o repositório no computador ou o dataset no Kaggle
 RAIZ = Path(__file__).resolve().parents[2]
