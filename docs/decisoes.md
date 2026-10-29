@@ -93,3 +93,20 @@ A minha explicação é que o preço do FMI é a média do mês. A posição dos
 A volatilidade também chamou atenção (−0,19): depois de meses agitados, o preço tende a cair no mês seguinte.
 
 A `exportacao_br_12m` tem alguns valores extremos nos primeiros anos, quando um mês quase não teve exportação. Vou ficar de olho nisso no Ridge.
+
+### Grupo novo: fim do mês e fundos por tipo
+
+Como os fundos funcionaram por causa da média do mês, testei features que olham direto para o fim do mês:
+
+| Feature | Antes do teste | No teste |
+|---|---|---|
+| `fim_vs_media` | 0,69 | 0,67 |
+| `ultima_semana` | 0,52 | 0,47 |
+| `gestores_var` | 0,35 | 0,22 |
+| `produtores_var` | −0,39 | −0,23 |
+
+O `fim_vs_media` (último dia contra a média do mês, com o preço diário de Chicago) virou de longe a feature mais forte. O motivo é simples: o preço do FMI é a média do mês do mesmo contrato de Chicago. Se o mês termina acima da média, o mês seguinte já começa acima, e a média dele tende a subir.
+
+Isso muda a régua. Só de prever que a média do mês que vem vai ser igual ao preço do último dia, o erro no teste cai para **0,741** do passeio aleatório, sem modelo nenhum. Ou seja, boa parte do que parecia "previsão" é só o efeito da média. Por isso, a partir da etapa 06, comparo os modelos com duas referências: o passeio aleatório e o "último dia".
+
+Os gestores e produtores só existem desde 2006 (o relatório desagregado da CFTC começa aí), e o `fim_vs_media` não tem 8 meses no começo da série.

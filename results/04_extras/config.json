@@ -7,7 +7,9 @@
     "USDA WASDE via ESMIS",
     "CFTC COT legacy (005602)",
     "FMI (preço)",
-    "Comex Stat SH4 1201"
+    "Comex Stat NCM 12010090 e 12019000",
+    "Yahoo Finance ZS=F",
+    "CFTC desagregado (005602)"
   ],
   "colunas": [
     "revisao_argentina",
@@ -19,7 +21,12 @@
     "tendencia_6m",
     "tendencia_12m",
     "volatilidade_6m",
-    "exportacao_br_12m"
+    "exportacao_br_12m",
+    "fim_vs_media",
+    "ultima_semana",
+    "gestores_liquido",
+    "gestores_var",
+    "produtores_var"
   ],
   "meses": 322,
   "ultimo_mes": "2026-10"
