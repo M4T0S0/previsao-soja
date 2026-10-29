@@ -41,3 +41,19 @@ Antes do teste, a correlação do ONI de *k* meses antes com o alvo muda de sina
 As features que montei tiveram estas correlações: `oni` −0,11, `oni_lag2` −0,05, `oni_lag8` +0,21 e `oni_var3` −0,17.
 
 Faz sentido o efeito aparecer com atraso: o El Niño mexe com a safra da América do Sul meses depois, e só aí o preço reage. Guardei o `oni_lag2` e o `oni_lag8` e vou deixar o Ridge decidir entre eles na etapa 06.
+
+## 03_wasde
+
+Li 318 relatórios do WASDE, de janeiro de 2000 a outubro de 2026. Faltam quatro meses: outubro de 2013, janeiro de 2019 e outubro de 2025, quando o governo dos EUA parou e o relatório não saiu, e janeiro de 2015, cujo arquivo não consegui ler. Nesses meses repito o último estoque/uso e uso revisão zero.
+
+Antes do teste, as correlações ficaram assim:
+
+| Feature | Com o alvo (mês seguinte) | Com a variação do mesmo mês |
+|---|---|---|
+| `estoque_uso_mundo` | −0,02 | −0,10 |
+| `estoque_uso_eua` | 0,08 | −0,01 |
+| `revisao_brasil` | −0,01 | −0,05 |
+| `revisao_eua` | 0,06 | −0,18 |
+| `revisao_china_import` | 0,03 | −0,01 |
+
+Sozinhas, elas quase não se relacionam com o alvo. Faz sentido, porque o mercado reage ao relatório no próprio mês. A revisão dos EUA mostra isso bem: o preço cai no mês em que a produção é revisada para cima (−0,18) e devolve um pouco no mês seguinte (+0,06). Mesmo fracas, mantenho as cinco para testar no Ridge, porque juntas com o preço e o El Niño elas podem ajudar.
