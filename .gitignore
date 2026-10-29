@@ -1,0 +1,13 @@
+# Downloads brutos e cache do WASDE (refeitos na primeira execução)
+data/
+
+# Pacotes que o Kaggle gera para download
+*.zip
+
+# Temporários do Python e do Jupyter
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+
+# Sistema
+.DS_Store
