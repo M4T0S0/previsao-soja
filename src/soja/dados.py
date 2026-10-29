@@ -73,33 +73,30 @@ URL_COMEX = "https://api-comexstat.mdic.gov.br/general"
 NCM_SOJA = ["12010090", "12019000"]
 
 
-def _consulta_comex(ano: int) -> pd.DataFrame:
+def _consulta_comex(de: str, ate: str) -> pd.DataFrame:
     corpo = {
         "flow": "export", "monthDetail": True,
-        "period": {"from": f"{ano}-01", "to": f"{ano}-12"},
+        "period": {"from": de, "to": ate},
         "filters": [{"filter": "ncm", "values": NCM_SOJA}],
         "details": ["ncm"], "metrics": ["metricKG"],
     }
-    for tentativa in range(5):
-        resposta = requests.post(URL_COMEX, json=corpo, timeout=120)
-        if resposta.status_code == 429:  # muitas consultas seguidas: espera e tenta de novo
-            time.sleep(15)
+    for espera in (30, 60, 90, 120):
+        resposta = requests.post(URL_COMEX, json=corpo, timeout=300)
+        if resposta.status_code == 429:  # limite de consultas: espera e tenta de novo
+            print(f"  Comex Stat pediu para esperar; tentando de novo em {espera}s")
+            time.sleep(espera)
             continue
         dados = resposta.json()
         if "data" not in dados:
-            raise RuntimeError(f"Comex Stat respondeu {resposta.status_code} em {ano}: {dados}")
+            raise RuntimeError(f"Comex Stat respondeu {resposta.status_code} para {de} a {ate}: {dados}")
         lista = dados["data"]["list"] if isinstance(dados["data"], dict) else dados["data"]
         return pd.DataFrame(lista)
-    raise RuntimeError(f"Comex Stat recusou as consultas de {ano} (limite de acessos)")
+    raise RuntimeError("Comex Stat continua recusando (limite de acessos). Espere alguns minutos e rode a célula de novo.")
 
 
 def baixar_exportacoes_br(desde: int, ate: int) -> pd.Series:
-    """Toneladas de soja em grão exportadas pelo Brasil por mês."""
-    partes = []
-    for ano in range(desde, ate + 1):
-        partes.append(_consulta_comex(ano))
-        time.sleep(2)
-    df = pd.concat(partes)
+    """Toneladas de soja em grão exportadas pelo Brasil por mês (uma consulta só, para o período todo)."""
+    df = _consulta_comex(f"{desde}-01", f"{ate}-12")
     col = lambda trecho: next(c for c in df.columns if trecho.lower() in c.lower())
     meses = pd.PeriodIndex.from_fields(year=df[col("year")].astype(int), month=df[col("monthnumber")].astype(int), freq="M")
     toneladas = pd.to_numeric(df[col("kg")]).values / 1000
