@@ -37,6 +37,13 @@ Rodo tudo no Kaggle:
 2. Importo o notebook da etapa, que está em `notebooks/`, e rodo com a internet ligada.
 3. Baixo o zip de `/kaggle/working/results/` e extraio em `results/`.
 
+O app lê a previsão salva em `results/08_modelo_final/`. Para abrir no computador:
+
+```
+pip install -r app/requirements.txt
+streamlit run app/app.py
+```
+
 ## De onde vêm os dados
 
 | Fonte | O que pego dela |
