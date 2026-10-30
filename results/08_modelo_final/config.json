@@ -1,0 +1,39 @@
+{
+  "inicio": "2000-01",
+  "teste_inicio": "2015-01",
+  "teste_fim": "2026-06",
+  "semente": 42,
+  "colunas": [
+    "dlog_preco",
+    "dlog_preco_lag1",
+    "tendencia_3m",
+    "mes_sin",
+    "mes_cos",
+    "fim_vs_media",
+    "ultima_semana",
+    "oni",
+    "oni_lag2",
+    "oni_lag8",
+    "oni_var3",
+    "fundos_liquido",
+    "fundos_var"
+  ],
+  "alvo_do_modelo": "alvo - fim_vs_media",
+  "alpha": 356.2247890262444,
+  "intercepto": 0.0014960397749711086,
+  "meses_treino": [
+    "2000-09",
+    "2026-08"
+  ],
+  "faixas_erro_log": {
+    "80%": [
+      -0.04163474319350966,
+      0.04063575890652138
+    ],
+    "95%": [
+      -0.06715453078138048,
+      0.05988439278641316
+    ]
+  },
+  "faixas_de": "erros do Ridge no teste da etapa 07"
+}

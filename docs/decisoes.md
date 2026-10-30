@@ -201,3 +201,23 @@ Resultado no teste (janeiro de 2015 a junho de 2026, 138 meses):
 Nenhum modelo ganhou do último dia. O melhor foi a LSTM, com erro 0,5% menor, mas a diferença é ruído (p = 0,86). No gráfico de vantagem acumulada, as redes e o Ridge passam um período na frente (2021 a 2023) e devolvem tudo depois.
 
 Conclusão: com estes dados, nem modelos lineares nem redes conseguem prever a soja melhor que o último preço do mês. Toda a vantagem sobre o passeio aleatório (cerca de 26%) vem do efeito da média mensal.
+
+## 08_modelo_final
+
+Escolhi o Ridge sobre o desvio em relação ao último dia. Ele empatou com as redes na etapa 07, é simples, treina em segundos e deixa ver o peso de cada feature, o que ajuda no app.
+
+Treinei com todos os meses que têm as 13 features e o alvo (setembro de 2000 a agosto de 2026, 312 meses). O RidgeCV escolheu alpha = 356, um valor alto: os coeficientes ficam todos perto de zero (o maior, `mes_cos`, é 0,003 por desvio-padrão), então a previsão quase não se afasta do último dia.
+
+A faixa de incerteza vem dos 138 erros do Ridge no teste da etapa 07 (alvo − previsão, em log):
+
+- **80%:** −0,042 a +0,041
+- **95%:** −0,067 a +0,060
+
+Previsão para outubro de 2026, a partir de setembro (média de US$ 481,7/t):
+
+- **Ridge:** US$ 472,2/t (−2,0%)
+- **Último dia:** US$ 476,8/t
+- **Faixa de 80%:** US$ 453 a 492/t
+- **Faixa de 95%:** US$ 442 a 501/t
+
+O `modelo.pkl` foi salvo com scikit-learn 1.6.1, então o app precisa usar a mesma versão para carregá-lo.
