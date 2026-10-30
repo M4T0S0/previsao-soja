@@ -228,3 +228,9 @@ Juntei as tabelas e figuras do relatório num notebook só, que lê os resultado
 
 - **Tabelas:** features do modelo final; correlação de todas as features com o alvo (até 2014 e de 2015 em diante); grupos de features na validação; modelos no teste contra as duas réguas; hiperparâmetros; previsão do próximo mês.
 - **Figuras:** preço com os períodos; efeito da média mensal (fim do mês contra o alvo); maiores correlações; grupos; modelos contra as duas réguas; previsões no teste; vantagem acumulada sobre o último dia; previsão de outubro de 2026; pesos do Ridge final.
+
+## App
+
+O app (`app/app.py`) mostra a previsão do próximo mês. Ao abrir, ele baixa os dados mais recentes (preço do FMI pelo FRED, ONI da NOAA, fundos da CFTC dos dois últimos anos e preço diário do Yahoo), monta as 13 features com as mesmas funções de `src/soja/` e aplica os coeficientes salvos na etapa 08. Faço a conta da padronização e do Ridge à mão (`src/soja/ao_vivo.py`), em vez de carregar o `modelo.pkl`, para o app não depender da versão do scikit-learn; conferi que dá exatamente o mesmo número (US$ 472,2/t para outubro de 2026).
+
+O resultado fica em cache por 6 horas. Se alguma fonte estiver fora do ar, o app mostra a última previsão salva da etapa 08 e avisa isso no rodapé.

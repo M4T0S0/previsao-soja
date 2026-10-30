@@ -49,9 +49,13 @@ def _ler_zip_csv(url: str) -> pd.DataFrame:
         return pd.read_csv(z.open(z.namelist()[0]), dtype=str, low_memory=False)
 
 
-def baixar_cot(ate: int) -> pd.DataFrame:
-    """Posições semanais da soja: data, contratos em aberto e compras/vendas dos não comerciais (fundos)."""
-    urls = [URL_COT_HISTORICO] + [URL_COT_ANO.format(ano=a) for a in range(2017, ate + 1)]
+def baixar_cot(ate: int, desde: int | None = None) -> pd.DataFrame:
+    """Posições semanais da soja: data, contratos em aberto e compras/vendas dos não comerciais (fundos).
+
+    Com `desde` (2017 ou depois), baixo só os arquivos anuais a partir desse ano, sem o histórico.
+    """
+    anos = range(desde or 2017, ate + 1)
+    urls = ([] if desde else [URL_COT_HISTORICO]) + [URL_COT_ANO.format(ano=a) for a in anos]
     partes = []
     for url in urls:
         df = _ler_zip_csv(url)

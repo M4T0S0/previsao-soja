@@ -1,5 +1,6 @@
 """Previsão do preço médio da soja para o próximo mês."""
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -7,7 +8,10 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-RESULTS = Path(__file__).resolve().parents[1] / "results"
+RAIZ = Path(__file__).resolve().parents[1]
+RESULTS = RAIZ / "results"
+sys.path.insert(0, str(RAIZ / "src"))
+from soja import ao_vivo  # noqa: E402
 BUSHELS_POR_T = 1000 / 27.2155
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho",
          "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
@@ -73,6 +77,16 @@ def carregar():
     return previsao, tabela, teste.set_index("mes"), resumo
 
 
+@st.cache_data(ttl=6 * 3600, show_spinner="Buscando os dados mais recentes...")
+def previsao_ao_vivo():
+    """Previsão com os dados de hoje (FRED, NOAA, CFTC e Yahoo). Devolve None se alguma fonte falhar."""
+    try:
+        previsao, preco = ao_vivo.baixar_e_prever()
+        return previsao, preco, pd.Timestamp.today().date()
+    except Exception:
+        return None
+
+
 @st.cache_data(ttl=3600)
 def cotacao_hoje():
     """Último fechamento do contrato de Chicago (ZS=F) em US$/t, ou None se o Yahoo não responder."""
@@ -95,6 +109,10 @@ def estilo(fig, altura):
 
 
 previsao, tabela, teste, resumo = carregar()
+preco = tabela["preco_usd_t"]
+ao_vivo_ok = previsao_ao_vivo()
+if ao_vivo_ok:  # se alguma fonte estiver fora do ar, fico com a última previsão salva na etapa 08
+    previsao, preco, atualizado = ao_vivo_ok
 mes_base, mes_prev = pd.Period(previsao["mes_base"], "M"), pd.Period(previsao["mes_previsto"], "M")
 atual, prevista = previsao["preco_atual"], previsao["preco_previsto"]
 a80, b80 = previsao["faixas"]["80%"]
@@ -126,7 +144,7 @@ st.markdown(f"""
 
 # 2. contexto: últimos 3 anos e a previsão
 st.markdown("### Últimos 3 anos")
-hist = tabela.loc[mes_base - 35:mes_base, "preco_usd_t"]
+hist = preco.loc[mes_base - 35:mes_base]
 x0, x1 = mes_base.to_timestamp(), mes_prev.to_timestamp()
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=[x0, x1, x1, x0], y=[atual, b80, a80, atual], mode="lines", fill="toself",
@@ -141,7 +159,8 @@ fig.update_xaxes(tickformat="%m/%Y")
 st.markdown(f'<div class="legenda">US$ por tonelada · a faixa verde é onde o preço deve ficar</div>', unsafe_allow_html=True)
 st.plotly_chart(estilo(fig, 320), width="stretch", config={"displayModeBar": False})
 
-st.markdown('<div class="aviso">Esta previsão não é recomendação de investimento.</div>', unsafe_allow_html=True)
+fonte = f"Dados atualizados em {atualizado:%d/%m/%Y}." if ao_vivo_ok else "Mostrando a última previsão salva."
+st.markdown(f'<div class="aviso">{fonte} Esta previsão não é recomendação de investimento.</div>', unsafe_allow_html=True)
 
 # 3. para quem quer saber mais
 with st.expander("Como a previsão é feita"):
