@@ -1,0 +1,20 @@
+Modelo,Hiperparâmetro,Valor
+Ridge,alpha (modelo final),356.2
+Random Forest,n_estimators,500
+Random Forest,max_depth,2
+Random Forest,min_samples_leaf,14
+Random Forest,max_features,0.6417
+LSTM,janela,6
+LSTM,unidades,11
+LSTM,camadas,1
+LSTM,dropout,0.3596
+LSTM,lr,0.0002923
+LSTM,epocas,80
+LSTM,weight_decay,0.0003842
+BiLSTM,janela,6
+BiLSTM,unidades,15
+BiLSTM,camadas,1
+BiLSTM,dropout,0.3525
+BiLSTM,lr,0.0003474
+BiLSTM,epocas,40
+BiLSTM,weight_decay,0.004949

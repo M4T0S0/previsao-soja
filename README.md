@@ -25,7 +25,7 @@ Fui dividindo o trabalho em etapas numeradas, cada uma com o seu notebook:
 | 06 | `06_features` | Vejo, com um Ridge, quais grupos de features ajudam de verdade | feita |
 | 07 | `07_modelos` | Comparo Ridge, Random Forest, LSTM e BiLSTM, ajustados com Optuna | feita |
 | 08 | `08_modelo_final` | Treino o modelo escolhido e prevejo o próximo mês | feita |
-| 09 | `09_tabelas_figuras` | Gero as tabelas e figuras do relatório | a fazer |
+| 09 | `09_tabelas_figuras` | Gero as tabelas e figuras do relatório | feita |
 
 O que decidi em cada etapa, e por quê, está em [`docs/decisoes.md`](docs/decisoes.md). Expliquei a organização das pastas em [`docs/organizacao.md`](docs/organizacao.md).
 

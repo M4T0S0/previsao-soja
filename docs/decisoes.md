@@ -221,3 +221,10 @@ Previsão para outubro de 2026, a partir de setembro (média de US$ 481,7/t):
 - **Faixa de 95%:** US$ 442 a 501/t
 
 O `modelo.pkl` foi salvo com scikit-learn 1.6.1, então o app precisa usar a mesma versão para carregá-lo.
+
+## 09_tabelas_figuras
+
+Juntei as tabelas e figuras do relatório num notebook só, que lê os resultados das etapas 01 a 08 e não baixa nada. Cada tabela sai em `.csv` e `.tex`.
+
+- **Tabelas:** features do modelo final; correlação de todas as features com o alvo (até 2014 e de 2015 em diante); grupos de features na validação; modelos no teste contra as duas réguas; hiperparâmetros; previsão do próximo mês.
+- **Figuras:** preço com os períodos; efeito da média mensal (fim do mês contra o alvo); maiores correlações; grupos; modelos contra as duas réguas; previsões no teste; vantagem acumulada sobre o último dia; previsão de outubro de 2026; pesos do Ridge final.

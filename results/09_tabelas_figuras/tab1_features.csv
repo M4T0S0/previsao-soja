@@ -1,0 +1,14 @@
+Feature,Grupo,Fonte,Descrição
+dlog_preco,Preço,FMI,Variação do preço no mês (log)
+dlog_preco_lag1,Preço,FMI,Variação do preço no mês anterior
+tendencia_3m,Preço,FMI,Variação do preço em 3 meses
+mes_sin,Sazonalidade,Calendário,Seno do mês do ano
+mes_cos,Sazonalidade,Calendário,Cosseno do mês do ano
+fim_vs_media,Fim do mês,Yahoo (ZS=F),Último dia de Chicago menos a média do mês (log)
+ultima_semana,Fim do mês,Yahoo (ZS=F),Variação nos últimos 5 pregões do mês
+oni,ENSO,NOAA CPC,Índice ONI do mês
+oni_lag2,ENSO,NOAA CPC,ONI de 2 meses antes
+oni_lag8,ENSO,NOAA CPC,ONI de 8 meses antes
+oni_var3,ENSO,NOAA CPC,Variação do ONI em 3 meses
+fundos_liquido,Fundos,CFTC COT,Posição líquida dos fundos / contratos em aberto
+fundos_var,Fundos,CFTC COT,Variação da posição líquida no mês

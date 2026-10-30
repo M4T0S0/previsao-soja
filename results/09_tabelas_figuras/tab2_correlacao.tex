@@ -1,0 +1,39 @@
+\begin{table}
+\caption{Correlação de cada feature com a variação do preço no mês seguinte.}
+\label{tab:tab2_correlacao}
+\begin{tabular}{lrrl}
+\toprule
+Feature & Até 2014 & 2015 em diante & No modelo \\
+\midrule
+fim\_vs\_media & 0.690 & 0.672 & sim \\
+ultima\_semana & 0.525 & 0.465 & sim \\
+produtores\_var & -0.389 & -0.232 &  \\
+fundos\_var & 0.382 & 0.253 & sim \\
+dlog\_preco & 0.354 & 0.232 & sim \\
+gestores\_var & 0.353 & 0.217 &  \\
+oni\_lag8 & 0.210 & 0.033 & sim \\
+mes\_sin & 0.203 & 0.047 & sim \\
+tendencia\_3m & 0.195 & 0.161 & sim \\
+volatilidade\_6m & -0.192 & -0.058 &  \\
+mes\_cos & 0.182 & 0.254 & sim \\
+oni\_var3 & -0.170 & -0.174 & sim \\
+fundos\_liquido & 0.142 & 0.102 & sim \\
+oni & -0.112 & -0.126 & sim \\
+dlog\_preco\_lag1 & 0.108 & 0.097 & sim \\
+tendencia\_6m & 0.084 & 0.048 &  \\
+estoque\_uso\_eua & 0.077 & 0.055 &  \\
+gestores\_liquido & 0.066 & 0.083 &  \\
+revisao\_eua\_export & 0.063 & 0.084 &  \\
+revisao\_eua & 0.060 & 0.093 &  \\
+exportacao\_br\_12m & 0.057 & 0.082 &  \\
+revisao\_argentina & -0.049 & 0.018 &  \\
+oni\_lag2 & -0.047 & -0.050 & sim \\
+tendencia\_12m & -0.030 & 0.038 &  \\
+revisao\_eua\_esmagamento & 0.028 & 0.104 &  \\
+revisao\_china\_import & 0.026 & -0.008 &  \\
+estoque\_uso\_mundo & -0.023 & -0.083 &  \\
+revisao\_estoque\_mundo & -0.019 & -0.029 &  \\
+revisao\_brasil & -0.007 & -0.031 &  \\
+\bottomrule
+\end{tabular}
+\end{table}

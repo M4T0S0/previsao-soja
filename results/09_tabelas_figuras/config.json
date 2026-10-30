@@ -1,0 +1,13 @@
+{
+  "inicio": "2000-01",
+  "teste_inicio": "2015-01",
+  "teste_fim": "2026-06",
+  "semente": 42,
+  "fontes": [
+    "01_preco",
+    "05_tabela",
+    "06_features",
+    "07_modelos",
+    "08_modelo_final"
+  ]
+}

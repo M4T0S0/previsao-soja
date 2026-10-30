@@ -1,0 +1,23 @@
+\begin{table}
+\caption{Features usadas no modelo final.}
+\label{tab:tab1_features}
+\begin{tabular}{llll}
+\toprule
+Feature & Grupo & Fonte & Descrição \\
+\midrule
+dlog\_preco & Preço & FMI & Variação do preço no mês (log) \\
+dlog\_preco\_lag1 & Preço & FMI & Variação do preço no mês anterior \\
+tendencia\_3m & Preço & FMI & Variação do preço em 3 meses \\
+mes\_sin & Sazonalidade & Calendário & Seno do mês do ano \\
+mes\_cos & Sazonalidade & Calendário & Cosseno do mês do ano \\
+fim\_vs\_media & Fim do mês & Yahoo (ZS=F) & Último dia de Chicago menos a média do mês (log) \\
+ultima\_semana & Fim do mês & Yahoo (ZS=F) & Variação nos últimos 5 pregões do mês \\
+oni & ENSO & NOAA CPC & Índice ONI do mês \\
+oni\_lag2 & ENSO & NOAA CPC & ONI de 2 meses antes \\
+oni\_lag8 & ENSO & NOAA CPC & ONI de 8 meses antes \\
+oni\_var3 & ENSO & NOAA CPC & Variação do ONI em 3 meses \\
+fundos\_liquido & Fundos & CFTC COT & Posição líquida dos fundos / contratos em aberto \\
+fundos\_var & Fundos & CFTC COT & Variação da posição líquida no mês \\
+\bottomrule
+\end{tabular}
+\end{table}

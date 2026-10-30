@@ -1,0 +1,17 @@
+\begin{table}
+\caption{Resultados no teste (jan/2015 a jun/2026, 138 meses). p: teste de Diebold-Mariano.}
+\label{tab:tab4_modelos}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Modelo & RMSE & MAE & Direção & rel. passeio & p (passeio) & rel. último dia & p (último dia) \\
+\midrule
+Passeio aleatório & 0.046 & 0.036 & NaN & 1.000 & NaN & 1.349 & 0.000 \\
+Último dia & 0.034 & 0.027 & 0.717 & 0.741 & 0.000 & 1.000 & NaN \\
+Ridge (etapa 06) & 0.036 & 0.027 & 0.667 & 0.779 & 0.003 & 1.051 & 0.238 \\
+Ridge sobre o desvio & 0.034 & 0.026 & 0.688 & 0.743 & 0.000 & 1.002 & 0.957 \\
+Random Forest & 0.035 & 0.027 & 0.688 & 0.751 & 0.001 & 1.013 & 0.597 \\
+LSTM & 0.034 & 0.026 & 0.696 & 0.738 & 0.000 & 0.995 & 0.857 \\
+BiLSTM & 0.034 & 0.026 & 0.703 & 0.742 & 0.000 & 1.002 & 0.951 \\
+\bottomrule
+\end{tabular}
+\end{table}
