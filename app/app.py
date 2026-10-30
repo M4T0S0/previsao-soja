@@ -12,11 +12,16 @@ BUSHELS_POR_T = 1000 / 27.2155
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho",
          "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
 
-# paleta: neutros cinza + um acento verde (Tailwind gray / emerald)
-VERDE = "#047857"
-CINZA_900, CINZA_500, CINZA_300, CINZA_100 = "#111827", "#6b7280", "#d1d5db", "#f3f4f6"
-
 st.set_page_config(page_title="Preço da soja", page_icon="🌱", layout="centered")
+
+# paleta: neutros cinza + um acento verde (Tailwind gray / emerald), uma para cada tema
+ESCURO = st.context.theme.type == "dark"
+if ESCURO:
+    VERDE, VERDE_FAIXA = "#10b981", "rgba(16,185,129,0.22)"
+    TEXTO, SUAVE, LINHA, BORDA, CARTAO, SELO = "#e5e7eb", "#9ca3af", "#374151", "#262a31", "#1a1d23", "#d1d5db"
+else:
+    VERDE, VERDE_FAIXA = "#047857", "rgba(4,120,87,0.15)"
+    TEXTO, SUAVE, LINHA, BORDA, CARTAO, SELO = "#111827", "#6b7280", "#d1d5db", "#f3f4f6", "#ffffff", "#374151"
 
 st.markdown(f"""
 <style>
@@ -25,22 +30,22 @@ html, body, [class*="css"], .stMarkdown, .stCaption {{ font-family: 'Inter', san
 .block-container {{ padding-top: 3rem; max-width: 760px; }}
 header[data-testid="stHeader"] {{ background: transparent; }}
 .marca {{ color: {VERDE}; font-weight: 600; font-size: .8125rem; letter-spacing: .06em; }}
-.titulo {{ color: {CINZA_900}; font-size: 1.875rem; font-weight: 700; letter-spacing: -.02em; margin: .25rem 0 1.5rem; }}
-.cartao {{ background: white; border: 1px solid {CINZA_100}; border-radius: .75rem; padding: 1.75rem 2rem;
+.titulo {{ color: {TEXTO}; font-size: 1.875rem; font-weight: 700; letter-spacing: -.02em; margin: .25rem 0 1.5rem; }}
+.cartao {{ background: {CARTAO}; border: 1px solid {BORDA}; border-radius: .75rem; padding: 1.75rem 2rem;
            box-shadow: 0 1px 2px rgba(17,24,39,.04); }}
-.rotulo {{ color: {CINZA_500}; font-size: .875rem; }}
-.valor {{ color: {CINZA_900}; font-size: 3rem; font-weight: 700; letter-spacing: -.03em; line-height: 1.1;
+.rotulo {{ color: {SUAVE}; font-size: .875rem; }}
+.valor {{ color: {TEXTO}; font-size: 3rem; font-weight: 700; letter-spacing: -.03em; line-height: 1.1;
           font-variant-numeric: tabular-nums; margin: .25rem 0 .5rem; }}
-.valor small {{ font-size: 1.125rem; font-weight: 500; color: {CINZA_500}; letter-spacing: 0; }}
+.valor small {{ font-size: 1.125rem; font-weight: 500; color: {SUAVE}; letter-spacing: 0; }}
 .variacao {{ display: inline-block; font-size: .875rem; font-weight: 500; padding: .125rem .625rem; border-radius: 999px; }}
-.faixa {{ color: {CINZA_900}; font-size: 1rem; margin-top: 1rem; }}
+.faixa {{ color: {TEXTO}; font-size: 1rem; margin-top: 1rem; }}
 .faixa b {{ font-variant-numeric: tabular-nums; }}
 .linha {{ display: flex; gap: 1rem; margin: 1rem 0 2rem; }}
-.mini {{ flex: 1; background: white; border: 1px solid {CINZA_100}; border-radius: .75rem; padding: 1rem 1.25rem; }}
-.mini .num {{ color: {CINZA_900}; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }}
-.aviso {{ color: {CINZA_500}; font-size: .8125rem; text-align: center; margin: 1.5rem 0 1rem; }}
-.legenda {{ color: {CINZA_500}; font-size: .8125rem; }}
-h3 {{ font-size: 1.125rem !important; font-weight: 600 !important; color: {CINZA_900}; }}
+.mini {{ flex: 1; background: {CARTAO}; border: 1px solid {BORDA}; border-radius: .75rem; padding: 1rem 1.25rem; }}
+.mini .num {{ color: {TEXTO}; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }}
+.aviso {{ color: {SUAVE}; font-size: .8125rem; text-align: center; margin: 1.5rem 0 1rem; }}
+.legenda {{ color: {SUAVE}; font-size: .8125rem; }}
+h3 {{ font-size: 1.125rem !important; font-weight: 600 !important; color: {TEXTO}; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -81,11 +86,11 @@ def cotacao_hoje():
 
 
 def estilo(fig, altura):
-    fig.update_layout(height=altura, margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="white", paper_bgcolor="rgba(0,0,0,0)",
-                      font=dict(family="Inter, sans-serif", color=CINZA_500, size=12), showlegend=False,
-                      hoverlabel=dict(bgcolor="white", font_color=CINZA_900))
-    fig.update_xaxes(showgrid=False, linecolor=CINZA_300, ticks="")
-    fig.update_yaxes(gridcolor=CINZA_100, zeroline=False, ticksuffix="  ")
+    fig.update_layout(height=altura, margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor=CARTAO, paper_bgcolor="rgba(0,0,0,0)",
+                      font=dict(family="Inter, sans-serif", color=SUAVE, size=12), showlegend=False,
+                      hoverlabel=dict(bgcolor=CARTAO, font_color=TEXTO))
+    fig.update_xaxes(showgrid=False, linecolor=LINHA, ticks="")
+    fig.update_yaxes(gridcolor=BORDA, zeroline=False, ticksuffix="  ")
     return fig
 
 
@@ -95,7 +100,7 @@ atual, prevista = previsao["preco_atual"], previsao["preco_previsto"]
 a80, b80 = previsao["faixas"]["80%"]
 var = prevista / atual - 1
 # alta ou queda não é boa nem ruim para todos (quem compra x quem vende), então o selo fica neutro
-cor_var, fundo_var = "#374151", CINZA_100
+cor_var, fundo_var = SELO, BORDA
 
 # 1. a resposta: o preço previsto, em destaque
 st.markdown(f"""
@@ -125,8 +130,8 @@ hist = tabela.loc[mes_base - 35:mes_base, "preco_usd_t"]
 x0, x1 = mes_base.to_timestamp(), mes_prev.to_timestamp()
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=[x0, x1, x1, x0], y=[atual, b80, a80, atual], mode="lines", fill="toself",
-                         fillcolor="rgba(4,120,87,0.15)", line=dict(width=0), hoverinfo="skip"))
-fig.add_trace(go.Scatter(x=hist.index.to_timestamp(), y=hist, mode="lines", line=dict(color=CINZA_900, width=2),
+                         fillcolor=VERDE_FAIXA, line=dict(width=0), hoverinfo="skip"))
+fig.add_trace(go.Scatter(x=hist.index.to_timestamp(), y=hist, mode="lines", line=dict(color=TEXTO, width=2),
                          hovertemplate="%{x|%m/%Y}<br><b>US$ %{y:.0f}</b><extra></extra>"))
 fig.add_trace(go.Scatter(x=[x0, x1], y=[atual, prevista], mode="lines+markers", line=dict(color=VERDE, width=2, dash="dot"),
                          marker=dict(size=[0, 9], color=VERDE), hovertemplate="previsão<br><b>US$ %{y:.0f}</b><extra></extra>"))
@@ -151,11 +156,11 @@ Em média, ele errou **{pct(np.expm1(resumo['mae']))}** do preço.
     prev = tabela.loc[teste.index, "preco_usd_t"] * np.exp(teste["previsao"])
     x = (teste.index + 1).to_timestamp()
     comp = go.Figure([
-        go.Scatter(x=x, y=real, line=dict(color=CINZA_900, width=1.5), hovertemplate="real: US$ %{y:.0f}<extra></extra>"),
+        go.Scatter(x=x, y=real, line=dict(color=TEXTO, width=1.5), hovertemplate="real: US$ %{y:.0f}<extra></extra>"),
         go.Scatter(x=x, y=prev, line=dict(color=VERDE, width=1.5), hovertemplate="previsto: US$ %{y:.0f}<extra></extra>"),
     ])
     comp.update_xaxes(tickformat="%Y")
-    st.markdown(f'<div class="legenda"><span style="color:{CINZA_900}">●</span> preço real &nbsp;&nbsp; '
+    st.markdown(f'<div class="legenda"><span style="color:{TEXTO}">●</span> preço real &nbsp;&nbsp; '
                 f'<span style="color:{VERDE}">●</span> previsto</div>', unsafe_allow_html=True)
     st.plotly_chart(estilo(comp, 260), width="stretch", config={"displayModeBar": False})
 
