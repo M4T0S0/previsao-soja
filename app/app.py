@@ -132,12 +132,14 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# se o FMI ainda não publicou o mês base, ele vem da média diária de Chicago (etapa 10)
+nota_base = " (Chicago)" if str(mes_base) in previsao.get("meses_de_chicago", []) else ""
 cotacao = cotacao_hoje()
 hoje = usd(cotacao[0]) if cotacao else "indisponível"
 quando = f"Chicago, {cotacao[1]:%d/%m}" if cotacao else "Chicago"
 st.markdown(f"""
 <div class="linha">
-  <div class="mini"><div class="rotulo">Média de {mes(mes_base)}</div><div class="num">{usd(atual)}</div></div>
+  <div class="mini"><div class="rotulo">Média de {mes(mes_base)}{nota_base}</div><div class="num">{usd(atual)}</div></div>
   <div class="mini"><div class="rotulo">Hoje ({quando})</div><div class="num">{hoje}</div></div>
 </div>
 """, unsafe_allow_html=True)

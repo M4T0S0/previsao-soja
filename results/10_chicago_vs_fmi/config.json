@@ -1,0 +1,19 @@
+{
+  "inicio": "2000-01",
+  "teste_inicio": "2015-01",
+  "teste_fim": "2026-06",
+  "semente": 42,
+  "meses": [
+    "2000-09",
+    "2026-09"
+  ],
+  "correlacao_precos": 0.99996133475598,
+  "correlacao_variacoes": 0.9988530150523593,
+  "erro_medio_teste": {
+    "chicago_puro": 0.001274183934709645,
+    "chicago_corrigido": 0.001447123632759941
+  },
+  "estimado_com": "média de Chicago sem correção",
+  "fmi_ate": "2026-09",
+  "chicago_ate": "2026-11-09"
+}

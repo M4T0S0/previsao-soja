@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import dados, features
+from . import config, dados, features
 
 PASTA_MODELO = Path(__file__).resolve().parents[2] / "results" / "08_modelo_final"
 
@@ -34,6 +34,17 @@ def montar_tabela(preco: pd.Series, oni: pd.Series, cot: pd.DataFrame, diario: p
     return tabela.loc[:preco.index[-1]]
 
 
+def completar_com_chicago(preco: pd.Series, diario: pd.Series, hoje: pd.Timestamp) -> tuple[pd.Series, list[str]]:
+    """Meses já encerrados que o FMI ainda não publicou viram a média diária de Chicago.
+
+    Na etapa 10 vi que as duas séries diferem só 0,13% em média, bem abaixo do erro do modelo.
+    O mês corrente fica de fora, porque ainda não terminou.
+    """
+    mensal = (diario / 100 * config.BUSHELS_POR_T).groupby(diario.index.to_period("M")).mean()
+    faltam = mensal[(mensal.index > preco.index[-1]) & (mensal.index < hoje.to_period("M"))]
+    return pd.concat([preco, faltam.rename(preco.name)]), [str(m) for m in faltam.index]
+
+
 def prever(tabela: pd.DataFrame, modelo: dict) -> dict:
     """Previsão da média do mês seguinte ao último mês da tabela com todas as features."""
     colunas = modelo["colunas"]
@@ -53,13 +64,19 @@ def prever(tabela: pd.DataFrame, modelo: dict) -> dict:
 
 
 def baixar_e_prever(modelo: dict | None = None) -> tuple[dict, pd.Series]:
-    """Baixa só o necessário (preço e ONI completos, fundos e preço diário do último ano e meio) e prevê."""
+    """Baixa só o necessário (preço e ONI completos, fundos e preço diário do último ano e meio) e prevê.
+
+    O mês base é sempre o último mês encerrado: se o FMI ainda não publicou, uso a média de Chicago.
+    """
     modelo = modelo or carregar_modelo()
     hoje = pd.Timestamp.today()
-    preco = dados.baixar_preco()
     oni = dados.baixar_oni()
     cot = dados.baixar_cot(ate=hoje.year, desde=hoje.year - 1)
     diario = dados.baixar_soja_diaria(desde=f"{hoje.year - 1}-01-01")
     diario.index = pd.to_datetime(diario.index).tz_localize(None)
-    tabela = montar_tabela(preco, oni, cot, diario)
-    return prever(tabela, modelo), preco
+    preco, de_chicago = completar_com_chicago(dados.baixar_preco(), diario, hoje)
+    if oni.index[-1] == preco.index[-1] - 1:  # o ONI do último mês ainda não saiu: repito o do mês anterior
+        oni = pd.concat([oni, pd.Series([oni.iloc[-1]], index=[preco.index[-1]], name=oni.name)])
+    previsao = prever(montar_tabela(preco, oni, cot, diario), modelo)
+    previsao["meses_de_chicago"] = de_chicago
+    return previsao, preco
