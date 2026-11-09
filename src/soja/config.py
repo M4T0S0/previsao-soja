@@ -27,6 +27,9 @@ GRUPOS = {
 }
 BASE = ["preco", "sazonalidade"]
 
+# 1 bushel de soja = 27,2155 kg, então 1 tonelada = 36,74 bushels
+BUSHELS_POR_T = 1000 / 27.2155
+
 SEMENTE = 42
 SEMENTES = [0, 1, 2, 3, 4]  # as redes são treinadas com 5 sementes e a previsão é a média
 N_TRIALS = 30  # tentativas do Optuna por modelo

@@ -36,6 +36,7 @@ Cada etapa tem um número e um nome curto. O notebook e a pasta de resultados us
 | 07 | `07_modelos` | Comparo Ridge, Random Forest, LSTM e BiLSTM (Optuna) usando as features escolhidas |
 | 08 | `08_modelo_final` | Treino o modelo escolhido e gero a previsão do próximo mês |
 | 09 | `09_tabelas_figuras` | Gero as tabelas e figuras do relatório da disciplina |
+| 10 | `10_chicago_vs_fmi` | Vejo se a média diária de Chicago pode substituir o FMI no mês que ele ainda não publicou (para o app) |
 
 Não coloquei o período de teste (janeiro de 2015 a junho de 2026) nem o alvo no nome das pastas. Eles ficam no `config.json` de cada pasta de resultados, junto com os outros parâmetros da rodada.
 
