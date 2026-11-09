@@ -26,6 +26,7 @@ Fui dividindo o trabalho em etapas numeradas, cada uma com o seu notebook:
 | 07 | `07_modelos` | Comparo Ridge, Random Forest, LSTM e BiLSTM, ajustados com Optuna | feita |
 | 08 | `08_modelo_final` | Treino o modelo escolhido e prevejo o próximo mês | feita |
 | 09 | `09_tabelas_figuras` | Gero as tabelas e figuras do relatório | feita |
+| 10 | `10_chicago_vs_fmi` | Vejo se a média diária de Chicago pode substituir o FMI no mês que ainda não saiu | feita |
 
 O que decidi em cada etapa, e por quê, está em [`docs/decisoes.md`](docs/decisoes.md). Expliquei a organização das pastas em [`docs/organizacao.md`](docs/organizacao.md).
 
@@ -37,7 +38,16 @@ Rodo tudo no Kaggle:
 2. Importo o notebook da etapa, que está em `notebooks/`, e rodo com a internet ligada.
 3. Baixo o zip de `/kaggle/working/results/` e extraio em `results/`.
 
-O app lê a previsão salva em `results/08_modelo_final/`. Para abrir no computador:
+## App
+
+O app (`app/app.py`) mostra quanto a soja deve custar, em média, no mês corrente. Ao abrir, ele baixa os dados do dia, monta as features e aplica o modelo da etapa 08. Como o FMI publica o mês com uns 20 dias de atraso, o último mês encerrado vem da média diária de Chicago até o FMI sair (etapa 10). Ele também mostra:
+
+- a faixa onde o preço caiu em 8 de cada 10 meses do teste;
+- o valor em reais por saca de 60 kg, com o dólar PTAX do Banco Central;
+- como foi a previsão do mês anterior;
+- a cotação do dia em Chicago e os últimos 3 anos de preço.
+
+Fiz o app para ajudar a planejar compras, vendas e contratos pela média do mês, e não como recomendação de investimento. Se alguma fonte estiver fora do ar, ele mostra a última previsão salva e avisa se ela já venceu. Para abrir no computador:
 
 ```
 pip install -r app/requirements.txt
@@ -51,6 +61,9 @@ streamlit run app/app.py
 | FMI, pelo FRED (`PSOYBUSDM`) | Preço mensal da soja em US$/t |
 | NOAA CPC | Índice ONI do El Niño |
 | USDA WASDE, pelo ESMIS | Oferta e demanda mundial de soja |
+| CFTC | Posição dos fundos em Chicago |
+| Yahoo Finance (`ZS=F`) | Preço diário de Chicago |
+| Banco Central (SGS, série 1) | Dólar PTAX, só no app |
 
 São todas públicas, e baixo direto, sem precisar de chave de API.
 

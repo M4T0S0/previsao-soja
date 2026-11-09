@@ -245,4 +245,8 @@ O app (`app/app.py`) mostra a previsão do próximo mês. Ao abrir, ele baixa os
 
 O mês base é sempre o último mês encerrado. Se o FMI ainda não publicou esse mês, uso a média diária de Chicago no lugar dele (etapa 10), e o app avisa isso ao lado do valor. Se o ONI desse mês ainda não saiu, repito o do mês anterior.
 
-O resultado fica em cache por 6 horas. Se alguma fonte estiver fora do ar, o app mostra a última previsão salva da etapa 08 e avisa isso no rodapé.
+Para quem compra e vende no Brasil, o app também mostra o valor em reais por saca de 60 kg, com o último dólar PTAX de venda do Banco Central (`US$/t × dólar × 60 / 1000`). É só a conversão do preço de Chicago, sem frete nem prêmio de porto, e o app avisa isso no rodapé.
+
+Logo abaixo da previsão, o app mostra como foi a previsão do mês anterior: refaço a conta com os dados até o mês retrasado e comparo com a média que aconteceu. A faixa de 80% vem dos erros do teste, então o texto do app diz que, nos anos de teste, o preço caiu numa faixa assim em 8 de cada 10 meses.
+
+O resultado fica em cache por 6 horas. Se alguma fonte estiver fora do ar, o app mostra a última previsão salva da etapa 08. Se o mês dela já passou, o título muda para "Última previsão salva" e aparece um aviso.

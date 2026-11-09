@@ -13,6 +13,7 @@ RESULTS = RAIZ / "results"
 sys.path.insert(0, str(RAIZ / "src"))
 from soja import ao_vivo  # noqa: E402
 BUSHELS_POR_T = 1000 / 27.2155
+SACA_KG = 60
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho",
          "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
 
@@ -49,6 +50,20 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 .mini .num {{ color: {TEXTO}; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }}
 .aviso {{ color: {SUAVE}; font-size: .8125rem; text-align: center; margin: 1.5rem 0 1rem; }}
 .legenda {{ color: {SUAVE}; font-size: .8125rem; }}
+.reais {{ color: {SUAVE}; font-size: 1rem; margin: -.25rem 0 .75rem; font-variant-numeric: tabular-nums; }}
+.faixa small, .mini small {{ display: block; color: {SUAVE}; font-size: .8125rem; margin-top: .25rem; }}
+.vencida {{ border: 1px solid {LINHA}; border-radius: .75rem; padding: .875rem 1.25rem; margin-bottom: 1rem;
+            color: {TEXTO}; font-size: .9375rem; }}
+.passado {{ background: {CARTAO}; border: 1px solid {BORDA}; border-radius: .75rem; padding: 1rem 1.25rem;
+            margin: -1rem 0 2rem; color: {TEXTO}; font-size: .9375rem; }}
+.passado b {{ font-variant-numeric: tabular-nums; }}
+@media (max-width: 640px) {{
+  .block-container {{ padding-top: 2rem; }}
+  .titulo {{ font-size: 1.5rem; }}
+  .valor {{ font-size: 2.5rem; }}
+  .cartao {{ padding: 1.25rem 1.25rem; }}
+  .linha {{ flex-direction: column; gap: .75rem; }}
+}}
 h3 {{ font-size: 1.125rem !important; font-weight: 600 !important; color: {TEXTO}; }}
 </style>
 """, unsafe_allow_html=True)
@@ -64,6 +79,15 @@ def usd(valor: float) -> str:
 
 def pct(valor: float) -> str:
     return f"{valor:.1%}".replace(".", ",")
+
+
+def brl(valor: float) -> str:
+    return "R$ " + f"{valor:,.2f}".replace(",", "x").replace(".", ",").replace("x", ".")
+
+
+def saca(usd_t: float) -> float:
+    """US$/t para R$ por saca de 60 kg, com o dólar do dia."""
+    return usd_t * dolar[0] * SACA_KG / 1000
 
 
 @st.cache_data
@@ -99,6 +123,18 @@ def cotacao_hoje():
         return None
 
 
+@st.cache_data(ttl=6 * 3600)
+def dolar_hoje():
+    """Último dólar PTAX de venda do Banco Central (série 1 do SGS), ou None se a API não responder."""
+    try:
+        import requests
+        url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados/ultimos/1?formato=json"
+        ultimo = requests.get(url, timeout=10).json()[-1]
+        return float(ultimo["valor"]), pd.to_datetime(ultimo["data"], dayfirst=True).date()
+    except Exception:
+        return None
+
+
 def estilo(fig, altura):
     fig.update_layout(height=altura, margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor=CARTAO, paper_bgcolor="rgba(0,0,0,0)",
                       font=dict(family="Inter, sans-serif", color=SUAVE, size=12), showlegend=False,
@@ -117,18 +153,28 @@ mes_base, mes_prev = pd.Period(previsao["mes_base"], "M"), pd.Period(previsao["m
 atual, prevista = previsao["preco_atual"], previsao["preco_previsto"]
 a80, b80 = previsao["faixas"]["80%"]
 var = prevista / atual - 1
+# sem dados ao vivo, a previsão salva pode ser de um mês que já passou: aviso em vez de fingir que é atual
+vencida = not ao_vivo_ok and mes_prev < pd.Timestamp.today().to_period("M")
+dolar = dolar_hoje()
 # alta ou queda não é boa nem ruim para todos (quem compra x quem vende), então o selo fica neutro
 cor_var, fundo_var = SELO, BORDA
 
 # 1. a resposta: o preço previsto, em destaque
+titulo = "Última previsão salva" if vencida else f"Quanto a soja deve custar em {mes(mes_prev)}?"
+aviso_vencida = (f'<div class="vencida">⚠️ Não consegui buscar os dados de hoje. Abaixo está a última previsão salva, '
+                 f'para {mes(mes_prev)} de {mes_prev.year}, um mês que já terminou. Tente de novo mais tarde.</div>') if vencida else ""
+reais = f'<div class="reais">≈ {brl(saca(prevista))} por saca de 60 kg</div>' if dolar else ""
 st.markdown(f"""
 <div class="marca">PREÇO INTERNACIONAL DA SOJA</div>
-<div class="titulo">Quanto a soja deve custar em {mes(mes_prev)}?</div>
+<div class="titulo">{titulo}</div>
+{aviso_vencida}
 <div class="cartao">
   <div class="rotulo">Preço médio previsto para {mes(mes_prev)} de {mes_prev.year}</div>
   <div class="valor">{usd(prevista)} <small>por tonelada</small></div>
+  {reais}
   <span class="variacao" style="color:{cor_var}; background:{fundo_var}">{'▲' if var >= 0 else '▼'} {pct(abs(var))} em relação a {mes(mes_base)}</span>
-  <div class="faixa">Deve ficar entre <b>{usd(a80)}</b> e <b>{usd(b80)}</b></div>
+  <div class="faixa">Faixa provável: <b>{usd(a80)}</b> a <b>{usd(b80)}</b>
+    <small>Nos {len(teste) // 12} anos em que testei o modelo, o preço real caiu numa faixa assim em 8 de cada 10 meses.</small></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -136,12 +182,25 @@ st.markdown(f"""
 nota_base = " (Chicago)" if str(mes_base) in previsao.get("meses_de_chicago", []) else ""
 cotacao = cotacao_hoje()
 hoje = usd(cotacao[0]) if cotacao else "indisponível"
+hoje_reais = f"<small>≈ {brl(saca(cotacao[0]))}/saca</small>" if cotacao and dolar else ""
+base_reais = f"<small>≈ {brl(saca(atual))}/saca</small>" if dolar else ""
 quando = f"Chicago, {cotacao[1]:%d/%m}" if cotacao else "Chicago"
 st.markdown(f"""
 <div class="linha">
-  <div class="mini"><div class="rotulo">Média de {mes(mes_base)}{nota_base}</div><div class="num">{usd(atual)}</div></div>
-  <div class="mini"><div class="rotulo">Hoje ({quando})</div><div class="num">{hoje}</div></div>
+  <div class="mini"><div class="rotulo">Média de {mes(mes_base)}{nota_base}</div><div class="num">{usd(atual)}</div>{base_reais}</div>
+  <div class="mini"><div class="rotulo">Hoje ({quando})</div><div class="num">{hoje}</div>{hoje_reais}</div>
 </div>
+""", unsafe_allow_html=True)
+
+passado = previsao.get("mes_passado")
+if passado:
+    m = pd.Period(passado["mes"], "M")
+    erro = passado["real"] / passado["previsto"] - 1
+    a, b = passado["faixa_80"]
+    dentro = "dentro da faixa prevista ✓" if a <= passado["real"] <= b else "fora da faixa prevista"
+    st.markdown(f"""
+<div class="passado">Como foi em {mes(m)}: previ <b>{usd(passado['previsto'])}</b>, e a média{nota_base} foi <b>{usd(passado['real'])}</b>
+({'+' if erro >= 0 else '−'}{pct(abs(erro))}, {dentro}).</div>
 """, unsafe_allow_html=True)
 
 # 2. contexto: últimos 3 anos e a previsão
@@ -162,7 +221,10 @@ st.markdown(f'<div class="legenda">US$ por tonelada · a faixa verde é onde o p
 st.plotly_chart(estilo(fig, 320), width="stretch", config={"displayModeBar": False})
 
 fonte = f"Dados atualizados em {atualizado:%d/%m/%Y}." if ao_vivo_ok else "Mostrando a última previsão salva."
-st.markdown(f'<div class="aviso">{fonte} Esta previsão não é recomendação de investimento.</div>', unsafe_allow_html=True)
+cambio = (f" Valores em reais com o dólar PTAX de {brl(dolar[0])} ({dolar[1]:%d/%m}), sem frete nem prêmio de porto."
+          if dolar else "")
+st.markdown(f'<div class="aviso">{fonte}{cambio}<br>Feito para ajudar a planejar compras, vendas e contratos pela média do mês. '
+            'Não é recomendação de investimento.</div>', unsafe_allow_html=True)
 
 # 3. para quem quer saber mais
 with st.expander("Como a previsão é feita"):
@@ -186,4 +248,4 @@ Em média, ele errou **{pct(np.expm1(resumo['mae']))}** do preço.
     st.plotly_chart(estilo(comp, 260), width="stretch", config={"displayModeBar": False})
 
 st.caption("Projeto da disciplina Oficina de Projetos em Ciência de Dados e IA · UTFPR · "
-           "Dados: FMI, NOAA, CFTC e Yahoo Finance")
+           "Dados: FMI, NOAA, CFTC, Yahoo Finance e Banco Central")

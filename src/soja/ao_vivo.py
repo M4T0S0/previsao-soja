@@ -77,6 +77,12 @@ def baixar_e_prever(modelo: dict | None = None) -> tuple[dict, pd.Series]:
     preco, de_chicago = completar_com_chicago(dados.baixar_preco(), diario, hoje)
     if oni.index[-1] == preco.index[-1] - 1:  # o ONI do último mês ainda não saiu: repito o do mês anterior
         oni = pd.concat([oni, pd.Series([oni.iloc[-1]], index=[preco.index[-1]], name=oni.name)])
-    previsao = prever(montar_tabela(preco, oni, cot, diario), modelo)
+    tabela = montar_tabela(preco, oni, cot, diario)
+    previsao = prever(tabela, modelo)
     previsao["meses_de_chicago"] = de_chicago
+    # a previsão que o modelo teria feito um mês atrás, para comparar com o que aconteceu
+    base = pd.Period(previsao["mes_base"], "M")
+    anterior = prever(tabela.loc[:base - 1], modelo)
+    previsao["mes_passado"] = {"mes": str(base), "previsto": anterior["preco_previsto"],
+                               "real": previsao["preco_atual"], "faixa_80": anterior["faixas"]["80%"]}
     return previsao, preco
